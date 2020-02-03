@@ -63,6 +63,14 @@ defmodule Coherence.CredentialStore.Server.Test do
     refute ud
   end
 
+  test "tolerates restarts", %{state: state, user_data: user_data1} do
+    creds1 = uuid()
+    state = put_credentials(state, creds1, user_data1)
+    Server.stop()
+    {:ok, state} = Server.init(nil)
+    assert %{store: %{}, user_data: %{}} = delete_credentials(state, creds1)
+  end
+
   test "update_user_logins", %{state: state, user_data: user_data1} do
     user_data2 = %{id: 2, name: "B"}
     user_data11 = Map.put(user_data1, :name, "AA")

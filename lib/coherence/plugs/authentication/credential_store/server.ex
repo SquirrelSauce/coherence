@@ -119,8 +119,18 @@ defmodule Coherence.CredentialStore.Server do
       state
       |> update_in([:store], &Map.delete(&1, credentials))
       |> update_in([:user_data, id], fn
-        {_, 1} -> nil
-        {user_data, inx} -> {user_data, inx - 1}
+        {_, 1} ->
+          nil
+
+        {user_data, inx} ->
+          {user_data, inx - 1}
+
+        _bad_match ->
+          # This is a bit of a hack to keep a logout
+          # from crashing the whole genserver if somehow
+          # %{state: user_data: %{1: data}} contains
+          # an invalid value
+          nil
       end)
 
     {:noreply, state}
